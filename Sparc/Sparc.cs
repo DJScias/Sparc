@@ -74,6 +74,7 @@ namespace Sparc
                     {
                         // show the context menu here
                         this.tabServers.TabPages.Remove(this.tabServers.TabPages[i] as TabPage);
+                        tabServers.SelectedIndex = i - 1;
                     }
                 }
             }

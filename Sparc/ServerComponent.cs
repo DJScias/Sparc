@@ -598,32 +598,32 @@ namespace Sparc
             if (modal.ShowDialog(this) == DialogResult.OK)
             {
                 nickname = modal.mtxNickname.Text;
+
+                try
+                {
+                    var doc = XDocument.Load(@"servers.xml");
+
+                    XElement servers = doc.Element("Servers");
+
+                    // Add child nodes
+                    XElement server = new XElement("Server");
+                    server.Add(new XAttribute("Name", nickname));
+                    server.Add(new XElement("Host", txHost.Text));
+                    server.Add(new XElement("Port", txPort.Text));
+                    server.Add(new XElement("Password", txPasswd.Text));
+
+                    servers.Add(server);
+
+                    servers.Save(@"servers.xml");
+                }
+                catch
+                {
+                    MessageBox.Show("The server list could not be loaded");
+                }
+
+                updateServerList();
             }
             modal.Dispose();
-
-            try
-            {
-                var doc = XDocument.Load(@"servers.xml");
-
-                XElement servers = doc.Element("Servers");
-
-                // Add child nodes
-                XElement server = new XElement("Server");
-                server.Add(new XAttribute("Name", nickname));
-                server.Add(new XElement("Host", txHost.Text));
-                server.Add(new XElement("Port", txPort.Text));
-                server.Add(new XElement("Password", txPasswd.Text));
-
-                servers.Add(server);
-
-                servers.Save(@"servers.xml");
-            }
-            catch
-            {
-                MessageBox.Show("The server list could not be loaded");
-            }
-
-            updateServerList();
         }
 
         private void loadServerList()

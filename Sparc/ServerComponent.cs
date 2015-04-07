@@ -737,5 +737,11 @@ namespace Sparc
         {
             return "[dd MMM, yyyy | HH:mm:ss] ";
         }
+
+        private void listServers_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
+        {
+            e.Cancel = true;
+            e.NewWidth = listServers.Columns[e.ColumnIndex].Width;
+        }
     }
 }

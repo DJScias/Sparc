@@ -577,18 +577,21 @@
             // 
             this.listServers.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnServer});
+            this.listServers.FullRowSelect = true;
             this.listServers.Location = new System.Drawing.Point(3, 10);
             this.listServers.Name = "listServers";
+            this.listServers.Scrollable = false;
             this.listServers.Size = new System.Drawing.Size(160, 195);
             this.listServers.TabIndex = 59;
             this.listServers.UseCompatibleStateImageBehavior = false;
             this.listServers.View = System.Windows.Forms.View.Details;
+            this.listServers.ColumnWidthChanging += new System.Windows.Forms.ColumnWidthChangingEventHandler(this.listServers_ColumnWidthChanging);
             this.listServers.MouseClick += new System.Windows.Forms.MouseEventHandler(this.listServers_MouseClick);
             // 
             // columnServer
             // 
             this.columnServer.Text = "Server";
-            this.columnServer.Width = 80;
+            this.columnServer.Width = listServers.Size.Width;
             // 
             // serverRefresh
             // 

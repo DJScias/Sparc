@@ -633,7 +633,6 @@ namespace Sparc
                 XmlDocument doc = new XmlDocument();
                 doc.Load(@"servers.xml");
 
-
                 foreach (XmlNode node in doc.DocumentElement.ChildNodes)
                 {
                     listServers.Items.Add(node.Attributes["Name"].Value);
@@ -648,16 +647,25 @@ namespace Sparc
 
         private void btnLoadHost_Click(object sender, EventArgs e)
         {
-            string name = listServers.SelectedItems[0].SubItems[0].Text;
-            foreach (XmlNode server in ServerCache)
+            try
             {
-                if(server.Attributes["Name"].Value == name)
+                string name = listServers.SelectedItems[0].SubItems[0].Text;
+
+                foreach (XmlNode server in ServerCache)
                 {
-                    txHost.Text = server["Host"].InnerText;
-                    txPort.Text = server["Port"].InnerText;
-                    txPasswd.Text = server["Password"].InnerText;
+                    if (server.Attributes["Name"].Value == name)
+                    {
+                        txHost.Text = server["Host"].InnerText;
+                        txPort.Text = server["Port"].InnerText;
+                        txPasswd.Text = server["Password"].InnerText;
+                    }
                 }
             }
+
+            catch
+            {
+                MessageBox.Show("You have not selected a server to load from.");
+            }           
         }
 
         private void clearServerList()

@@ -588,6 +588,7 @@
             // columnServer
             // 
             this.columnServer.Text = "Server";
+            this.columnServer.Width = 80;
             // 
             // serverRefresh
             // 

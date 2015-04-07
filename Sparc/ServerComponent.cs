@@ -424,15 +424,15 @@ namespace Sparc
             if (modal.ShowDialog(this) == DialogResult.OK)
             {
                 message = modal.mtxMessage.Text;
+
+                message = (message == "") ? "Admin kick" : message;
+
+                if (Properties.Settings.Default.showKickAdmin)
+                    message += " (" + Properties.Settings.Default.Username + ")";
+
+                b.SendCommand("kick " + listPlayers.SelectedItems[0].SubItems[0].Text + " " + message);
             }
             modal.Dispose();
-
-            message = (message == "") ? "Admin kick" : message;
-
-            if (Properties.Settings.Default.showKickAdmin)
-                message += " (" + Properties.Settings.Default.Username + ")";
-
-            b.SendCommand("kick " + listPlayers.SelectedItems[0].SubItems[0].Text + " " + message);
         }
 
         private void miMessage_Click(object sender, System.EventArgs e)
@@ -444,10 +444,10 @@ namespace Sparc
             if (modal.ShowDialog(this) == DialogResult.OK)
             {
                 message += modal.mtxMessage.Text;
-            }
-            modal.Dispose();
 
-            b.SendCommand("say " + listPlayers.SelectedItems[0].SubItems[0].Text + " " + message);
+                b.SendCommand("say " + listPlayers.SelectedItems[0].SubItems[0].Text + " " + message);
+            }
+            modal.Dispose();         
         }
 
         private void miBan_Click(object sender, System.EventArgs e)
@@ -465,37 +465,37 @@ namespace Sparc
                 mult = modal.bpLengthMult.Text;
                 time = Convert.ToInt32(modal.bpLengthInt.Value);
                 timeMessage = Convert.ToInt32(modal.bpLengthInt.Value);
+
+                switch (mult)
+                {
+                    case "Minutes":
+                        break;
+                    case "Hours":
+                        time = (time * 60);
+                        break;
+                    case "Days":
+                        time = (time * 1440);
+                        break;
+                    case "Permanent":
+                        time = 0;
+                        break;
+                    default:
+                        //prevent the player from accidentally being banned forever
+                        time = 5;
+                        break;
+                }
+
+                message = (message == "") ? "Admin ban" : message;
+
+                if (Properties.Settings.Default.showBanLength)
+                    message += " " + timeMessage + " " + mult;
+
+                if (Properties.Settings.Default.showBanAdmin)
+                    message += " (" + Properties.Settings.Default.Username + ")";
+
+                b.SendCommand("ban " + listPlayers.SelectedItems[0].SubItems[0].Text + " " + time + " " + message);
             }
             modal.Dispose();
-
-            switch (mult)
-            {
-                case "Minutes":
-                    break;
-                case "Hours":
-                    time = (time * 60);
-                    break;
-                case "Days":
-                    time = (time * 1440);
-                    break;
-                case "Permanent":
-                    time = 0;
-                    break;
-                default:
-                    //prevent the player from accidentally being banned forever
-                    time = 5;
-                    break;
-            }
-
-            message = (message == "") ? "Admin ban" : message;
-
-            if (Properties.Settings.Default.showBanLength)
-                message += " " + timeMessage + " " + mult;
-
-            if (Properties.Settings.Default.showBanAdmin)
-                message += " (" + Properties.Settings.Default.Username + ")";
-
-            b.SendCommand("ban " + listPlayers.SelectedItems[0].SubItems[0].Text + " "+ time + " " + message);
         }
 
         private void miQuickBan_Click(object sender, System.EventArgs e)

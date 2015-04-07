@@ -106,9 +106,9 @@ namespace Sparc
         private void BattlEyeConnected(BattlEyeConnectEventArgs args)
         {
             bool connected = false;
-            if (args.ConnectionResult == BattlEyeConnectionResult.Success) { this.Invoke((MethodInvoker)delegate() { appendChat("Connection successful\n", Color.Black); connected = true; }); }
-            if (args.ConnectionResult == BattlEyeConnectionResult.InvalidLogin) { this.Invoke((MethodInvoker)delegate() { appendChat("Invalid login details\n", Color.Black); }); }
-            if (args.ConnectionResult == BattlEyeConnectionResult.ConnectionFailed) { this.Invoke((MethodInvoker)delegate() { appendChat("Connection failed\n", Color.Black); }); }
+            if (args.ConnectionResult == BattlEyeConnectionResult.Success) { this.Invoke((MethodInvoker)delegate() { appendChat("\nConnection successful\n", Color.Black); connected = true; }); }
+            if (args.ConnectionResult == BattlEyeConnectionResult.InvalidLogin) { this.Invoke((MethodInvoker)delegate() { appendChat("\nInvalid login details\n", Color.Black); }); }
+            if (args.ConnectionResult == BattlEyeConnectionResult.ConnectionFailed) { this.Invoke((MethodInvoker)delegate() { appendChat("\nConnection failed\n", Color.Black); }); }
 
             if(connected)
                 this.Invoke((MethodInvoker)delegate() { handleConnect(); });
@@ -118,8 +118,8 @@ namespace Sparc
 
         private void BattlEyeDisconnected(BattlEyeDisconnectEventArgs args)
         {
-            if (args.DisconnectionType == BattlEyeDisconnectionType.ConnectionLost) { this.Invoke((MethodInvoker)delegate() { this.BeginInvoke((MethodInvoker)delegate() { appendChat("Connection lost (timeout). Attempting to reconnect.\n", Color.Black); }); }); };
-            if (args.DisconnectionType == BattlEyeDisconnectionType.SocketException) { this.Invoke((MethodInvoker)delegate() { appendChat("Connection closed (socket error)\n", Color.Black); }); }
+            if (args.DisconnectionType == BattlEyeDisconnectionType.ConnectionLost) { this.Invoke((MethodInvoker)delegate() { this.BeginInvoke((MethodInvoker)delegate() { appendChat("\nConnection lost (timeout). Attempting to reconnect.\n", Color.Black); }); }); };
+            if (args.DisconnectionType == BattlEyeDisconnectionType.SocketException) { this.Invoke((MethodInvoker)delegate() { appendChat("\nConnection closed (socket error)\n", Color.Black); }); }
             //if (args.DisconnectionType == BattlEyeDisconnectionType.Manual) { /* Disconnected by implementing application, that would be you */ }
 
             this.BeginInvoke((MethodInvoker)delegate() { this.txAll.AppendText("\n" + args.Message + "\n"); });

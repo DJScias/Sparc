@@ -53,6 +53,7 @@
             this.tabServers.Size = new System.Drawing.Size(1292, 590);
             this.tabServers.TabIndex = 21;
             this.tabServers.Selected += new System.Windows.Forms.TabControlEventHandler(this.tabServers_Selected);
+            this.tabServers.MouseClick += new System.Windows.Forms.MouseEventHandler(this.tabServers_MouseClick);
             // 
             // tabAddServer
             // 

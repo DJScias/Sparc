@@ -37,7 +37,7 @@
             this.btnSaveHost = new System.Windows.Forms.Button();
             this.btnLoadHost = new System.Windows.Forms.Button();
             this.btnExecute = new System.Windows.Forms.Button();
-            this.btnRefresh = new System.Windows.Forms.Button();
+            this.btnPlayerRefresh = new System.Windows.Forms.Button();
             this.btnConnect = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.txPasswd = new System.Windows.Forms.TextBox();
@@ -63,11 +63,16 @@
             this.columnPing = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.tabBans = new System.Windows.Forms.TabPage();
             this.listBans = new System.Windows.Forms.ListView();
+            this.columnbanNumber = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnGUIDIP = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnMinutesLeft = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnReason = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.playerMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.miCopy = new System.Windows.Forms.ToolStripMenuItem();
             this.msiCopyGUID = new System.Windows.Forms.ToolStripMenuItem();
             this.msiCopyIP = new System.Windows.Forms.ToolStripMenuItem();
             this.msiCopyName = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.miMessage = new System.Windows.Forms.ToolStripMenuItem();
             this.miKick = new System.Windows.Forms.ToolStripMenuItem();
             this.miBan = new System.Windows.Forms.ToolStripMenuItem();
@@ -82,11 +87,19 @@
             this.exUnlock = new System.Windows.Forms.ToolStripMenuItem();
             this.exRestart = new System.Windows.Forms.ToolStripMenuItem();
             this.exShutdown = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.exAddMultipleBans = new System.Windows.Forms.ToolStripMenuItem();
             this.listServers = new System.Windows.Forms.ListView();
             this.columnServer = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.serverRefresh = new System.Windows.Forms.Button();
             this.deleteMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.dmDelete = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnBanRefresh = new System.Windows.Forms.Button();
+            this.bannedMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.copyGUIDIPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.unbanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
+            this.removeAllExpiredBansToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.chatTabs.SuspendLayout();
             this.tabAll.SuspendLayout();
             this.tabChat.SuspendLayout();
@@ -97,6 +110,7 @@
             this.playerMenu.SuspendLayout();
             this.executeMenu.SuspendLayout();
             this.deleteMenu.SuspendLayout();
+            this.bannedMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // cmdOption
@@ -146,7 +160,7 @@
             // 
             // btnSettings
             // 
-            this.btnSettings.Location = new System.Drawing.Point(3, 501);
+            this.btnSettings.Location = new System.Drawing.Point(3, 530);
             this.btnSettings.Name = "btnSettings";
             this.btnSettings.Size = new System.Drawing.Size(160, 23);
             this.btnSettings.TabIndex = 54;
@@ -177,7 +191,7 @@
             // btnExecute
             // 
             this.btnExecute.Enabled = false;
-            this.btnExecute.Location = new System.Drawing.Point(3, 472);
+            this.btnExecute.Location = new System.Drawing.Point(3, 501);
             this.btnExecute.Name = "btnExecute";
             this.btnExecute.Size = new System.Drawing.Size(160, 23);
             this.btnExecute.TabIndex = 51;
@@ -185,16 +199,16 @@
             this.btnExecute.UseVisualStyleBackColor = true;
             this.btnExecute.Click += new System.EventHandler(this.btnExecute_Click);
             // 
-            // btnRefresh
+            // btnPlayerRefresh
             // 
-            this.btnRefresh.Enabled = false;
-            this.btnRefresh.Location = new System.Drawing.Point(3, 443);
-            this.btnRefresh.Name = "btnRefresh";
-            this.btnRefresh.Size = new System.Drawing.Size(160, 23);
-            this.btnRefresh.TabIndex = 50;
-            this.btnRefresh.Text = "Refresh";
-            this.btnRefresh.UseVisualStyleBackColor = true;
-            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
+            this.btnPlayerRefresh.Enabled = false;
+            this.btnPlayerRefresh.Location = new System.Drawing.Point(3, 443);
+            this.btnPlayerRefresh.Name = "btnPlayerRefresh";
+            this.btnPlayerRefresh.Size = new System.Drawing.Size(160, 23);
+            this.btnPlayerRefresh.TabIndex = 50;
+            this.btnPlayerRefresh.Text = "Refresh Players";
+            this.btnPlayerRefresh.UseVisualStyleBackColor = true;
+            this.btnPlayerRefresh.Click += new System.EventHandler(this.btnPlayerRefresh_Click);
             // 
             // btnConnect
             // 
@@ -281,6 +295,7 @@
             // 
             // txAll
             // 
+            this.txAll.Dock = System.Windows.Forms.DockStyle.Right;
             this.txAll.Font = new System.Drawing.Font("Lucida Console", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txAll.Location = new System.Drawing.Point(3, 3);
             this.txAll.Name = "txAll";
@@ -369,6 +384,7 @@
             this.listPlayers.GridLines = true;
             this.listPlayers.HideSelection = false;
             this.listPlayers.Location = new System.Drawing.Point(3, 3);
+            this.listPlayers.MultiSelect = false;
             this.listPlayers.Name = "listPlayers";
             this.listPlayers.Size = new System.Drawing.Size(1076, 283);
             this.listPlayers.TabIndex = 0;
@@ -399,7 +415,7 @@
             // columnIP
             // 
             this.columnIP.Text = "IP";
-            this.columnIP.Width = 85;
+            this.columnIP.Width = 95;
             // 
             // columnPing
             // 
@@ -408,6 +424,7 @@
             // 
             // tabBans
             // 
+            this.tabBans.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tabBans.Controls.Add(this.listBans);
             this.tabBans.Location = new System.Drawing.Point(23, 4);
             this.tabBans.Name = "tabBans";
@@ -419,25 +436,55 @@
             // 
             // listBans
             // 
+            this.listBans.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnbanNumber,
+            this.columnGUIDIP,
+            this.columnMinutesLeft,
+            this.columnReason});
             this.listBans.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listBans.FullRowSelect = true;
+            this.listBans.GridLines = true;
             this.listBans.HideSelection = false;
             this.listBans.Location = new System.Drawing.Point(3, 3);
+            this.listBans.MultiSelect = false;
             this.listBans.Name = "listBans";
-            this.listBans.Size = new System.Drawing.Size(1078, 285);
+            this.listBans.Size = new System.Drawing.Size(1076, 283);
             this.listBans.TabIndex = 1;
             this.listBans.UseCompatibleStateImageBehavior = false;
+            this.listBans.View = System.Windows.Forms.View.Details;
+            this.listBans.MouseClick += new System.Windows.Forms.MouseEventHandler(this.listBans_MouseClick);
+            // 
+            // columnbanNumber
+            // 
+            this.columnbanNumber.Text = "#";
+            // 
+            // columnGUIDIP
+            // 
+            this.columnGUIDIP.Text = "GUID/IP";
+            this.columnGUIDIP.Width = 307;
+            // 
+            // columnMinutesLeft
+            // 
+            this.columnMinutesLeft.Text = "Minutes left";
+            this.columnMinutesLeft.Width = 158;
+            // 
+            // columnReason
+            // 
+            this.columnReason.Text = "Reason";
+            this.columnReason.Width = 307;
             // 
             // playerMenu
             // 
             this.playerMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.miCopy,
+            this.toolStripSeparator4,
             this.miMessage,
             this.miKick,
             this.miBan,
             this.toolStripSeparator2,
             this.miQuickBan});
             this.playerMenu.Name = "playerMenu";
-            this.playerMenu.Size = new System.Drawing.Size(129, 120);
+            this.playerMenu.Size = new System.Drawing.Size(129, 126);
             // 
             // miCopy
             // 
@@ -469,6 +516,11 @@
             this.msiCopyName.Size = new System.Drawing.Size(106, 22);
             this.msiCopyName.Text = "Name";
             this.msiCopyName.Click += new System.EventHandler(this.msiCopyName_Click);
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(125, 6);
             // 
             // miMessage
             // 
@@ -515,63 +567,79 @@
             this.exLock,
             this.exUnlock,
             this.exRestart,
-            this.exShutdown});
+            this.exShutdown,
+            this.toolStripSeparator3,
+            this.exAddMultipleBans});
             this.executeMenu.Name = "executeMenu";
-            this.executeMenu.Size = new System.Drawing.Size(164, 164);
+            this.executeMenu.Size = new System.Drawing.Size(222, 192);
             // 
             // exScripts
             // 
             this.exScripts.Name = "exScripts";
-            this.exScripts.Size = new System.Drawing.Size(163, 22);
+            this.exScripts.Size = new System.Drawing.Size(221, 22);
             this.exScripts.Text = "Reload Scripts";
             this.exScripts.Click += new System.EventHandler(this.exScripts_Click);
             // 
             // exBans
             // 
             this.exBans.Name = "exBans";
-            this.exBans.Size = new System.Drawing.Size(163, 22);
+            this.exBans.Size = new System.Drawing.Size(221, 22);
             this.exBans.Text = "Reload Bans";
             this.exBans.Click += new System.EventHandler(this.exBans_Click);
             // 
             // exEvents
             // 
             this.exEvents.Name = "exEvents";
-            this.exEvents.Size = new System.Drawing.Size(163, 22);
+            this.exEvents.Size = new System.Drawing.Size(221, 22);
             this.exEvents.Text = "Reload Events";
             this.exEvents.Click += new System.EventHandler(this.exEvents_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(160, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(218, 6);
             // 
             // exLock
             // 
             this.exLock.Name = "exLock";
-            this.exLock.Size = new System.Drawing.Size(163, 22);
+            this.exLock.Size = new System.Drawing.Size(221, 22);
             this.exLock.Text = "Lock Server";
             this.exLock.Click += new System.EventHandler(this.exLock_Click);
             // 
             // exUnlock
             // 
             this.exUnlock.Name = "exUnlock";
-            this.exUnlock.Size = new System.Drawing.Size(163, 22);
+            this.exUnlock.Size = new System.Drawing.Size(221, 22);
             this.exUnlock.Text = "Unlock Server";
             this.exUnlock.Click += new System.EventHandler(this.exUnlock_Click);
             // 
             // exRestart
             // 
             this.exRestart.Name = "exRestart";
-            this.exRestart.Size = new System.Drawing.Size(163, 22);
+            this.exRestart.Size = new System.Drawing.Size(221, 22);
             this.exRestart.Text = "Restart Server";
             this.exRestart.Click += new System.EventHandler(this.exRestart_Click);
             // 
             // exShutdown
             // 
+            this.exShutdown.BackColor = System.Drawing.Color.Red;
+            this.exShutdown.ForeColor = System.Drawing.Color.White;
             this.exShutdown.Name = "exShutdown";
-            this.exShutdown.Size = new System.Drawing.Size(163, 22);
+            this.exShutdown.Size = new System.Drawing.Size(221, 22);
             this.exShutdown.Text = "Shutdown Server";
             this.exShutdown.Click += new System.EventHandler(this.exShutdown_Click);
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(218, 6);
+            // 
+            // exAddMultipleBans
+            // 
+            this.exAddMultipleBans.Name = "exAddMultipleBans";
+            this.exAddMultipleBans.Size = new System.Drawing.Size(221, 22);
+            this.exAddMultipleBans.Text = "Manually add multiple bans";
+            this.exAddMultipleBans.Click += new System.EventHandler(this.exAddMultipleBans_Click);
             // 
             // listServers
             // 
@@ -579,6 +647,7 @@
             this.columnServer});
             this.listServers.FullRowSelect = true;
             this.listServers.Location = new System.Drawing.Point(3, 10);
+            this.listServers.MultiSelect = false;
             this.listServers.Name = "listServers";
             this.listServers.Scrollable = false;
             this.listServers.Size = new System.Drawing.Size(160, 195);
@@ -586,12 +655,14 @@
             this.listServers.UseCompatibleStateImageBehavior = false;
             this.listServers.View = System.Windows.Forms.View.Details;
             this.listServers.ColumnWidthChanging += new System.Windows.Forms.ColumnWidthChangingEventHandler(this.listServers_ColumnWidthChanging);
+            this.listServers.Click += new System.EventHandler(this.listServers_Click);
+            this.listServers.DoubleClick += new System.EventHandler(this.listServers_DoubleClick);
             this.listServers.MouseClick += new System.Windows.Forms.MouseEventHandler(this.listServers_MouseClick);
             // 
             // columnServer
             // 
-            this.columnServer.Text = "Server";
-            this.columnServer.Width = listServers.Size.Width;
+            this.columnServer.Text = "Server (double click)";
+            this.columnServer.Width = 158;
             // 
             // serverRefresh
             // 
@@ -617,10 +688,58 @@
             this.dmDelete.Text = "Delete Server";
             this.dmDelete.Click += new System.EventHandler(this.dmDelete_Click);
             // 
+            // btnBanRefresh
+            // 
+            this.btnBanRefresh.Enabled = false;
+            this.btnBanRefresh.Location = new System.Drawing.Point(3, 472);
+            this.btnBanRefresh.Name = "btnBanRefresh";
+            this.btnBanRefresh.Size = new System.Drawing.Size(160, 23);
+            this.btnBanRefresh.TabIndex = 61;
+            this.btnBanRefresh.Text = "Refresh Bans";
+            this.btnBanRefresh.UseVisualStyleBackColor = true;
+            this.btnBanRefresh.Click += new System.EventHandler(this.btnBanRefresh_Click);
+            // 
+            // bannedMenu
+            // 
+            this.bannedMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.copyGUIDIPToolStripMenuItem,
+            this.unbanToolStripMenuItem,
+            this.toolStripSeparator5,
+            this.removeAllExpiredBansToolStripMenuItem});
+            this.bannedMenu.Name = "bannedMenu";
+            this.bannedMenu.Size = new System.Drawing.Size(202, 76);
+            // 
+            // copyGUIDIPToolStripMenuItem
+            // 
+            this.copyGUIDIPToolStripMenuItem.Name = "copyGUIDIPToolStripMenuItem";
+            this.copyGUIDIPToolStripMenuItem.Size = new System.Drawing.Size(201, 22);
+            this.copyGUIDIPToolStripMenuItem.Text = "Copy GUID/IP";
+            this.copyGUIDIPToolStripMenuItem.Click += new System.EventHandler(this.banCopyGUIDIP_Click);
+            // 
+            // unbanToolStripMenuItem
+            // 
+            this.unbanToolStripMenuItem.Name = "unbanToolStripMenuItem";
+            this.unbanToolStripMenuItem.Size = new System.Drawing.Size(201, 22);
+            this.unbanToolStripMenuItem.Text = "Unban";
+            this.unbanToolStripMenuItem.Click += new System.EventHandler(this.banUnban_Click);
+            // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(198, 6);
+            // 
+            // removeAllExpiredBansToolStripMenuItem
+            // 
+            this.removeAllExpiredBansToolStripMenuItem.Name = "removeAllExpiredBansToolStripMenuItem";
+            this.removeAllExpiredBansToolStripMenuItem.Size = new System.Drawing.Size(201, 22);
+            this.removeAllExpiredBansToolStripMenuItem.Text = "Remove all expired bans";
+            this.removeAllExpiredBansToolStripMenuItem.Click += new System.EventHandler(this.banRemoveAllExpiredBans_Click);
+            // 
             // ServerComponent
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.btnBanRefresh);
             this.Controls.Add(this.serverRefresh);
             this.Controls.Add(this.listServers);
             this.Controls.Add(this.cmdOption);
@@ -631,7 +750,7 @@
             this.Controls.Add(this.btnSaveHost);
             this.Controls.Add(this.btnLoadHost);
             this.Controls.Add(this.btnExecute);
-            this.Controls.Add(this.btnRefresh);
+            this.Controls.Add(this.btnPlayerRefresh);
             this.Controls.Add(this.btnConnect);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.txPasswd);
@@ -655,6 +774,7 @@
             this.playerMenu.ResumeLayout(false);
             this.executeMenu.ResumeLayout(false);
             this.deleteMenu.ResumeLayout(false);
+            this.bannedMenu.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -670,7 +790,7 @@
         private System.Windows.Forms.Button btnSaveHost;
         private System.Windows.Forms.Button btnLoadHost;
         private System.Windows.Forms.Button btnExecute;
-        private System.Windows.Forms.Button btnRefresh;
+        private System.Windows.Forms.Button btnPlayerRefresh;
         private System.Windows.Forms.Button btnConnect;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox txPasswd;
@@ -688,14 +808,12 @@
         private System.Windows.Forms.TabControl tabPlayer;
         private System.Windows.Forms.TabPage tabPlayers;
         private System.Windows.Forms.ListView listPlayers;
-        private System.Windows.Forms.ColumnHeader columnNumber;
+        private System.Windows.Forms.ColumnHeader columnbanNumber;
         private System.Windows.Forms.ColumnHeader columnName;
         private System.Windows.Forms.ColumnHeader columnStatus;
         private System.Windows.Forms.ColumnHeader columnGUID;
         private System.Windows.Forms.ColumnHeader columnIP;
         private System.Windows.Forms.ColumnHeader columnPing;
-        private System.Windows.Forms.TabPage tabBans;
-        private System.Windows.Forms.ListView listBans;
         private System.Windows.Forms.ContextMenuStrip playerMenu;
         private System.Windows.Forms.ToolStripMenuItem miCopy;
         private System.Windows.Forms.ToolStripMenuItem msiCopyGUID;
@@ -720,5 +838,20 @@
         private System.Windows.Forms.ToolStripMenuItem dmDelete;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem miQuickBan;
+        private System.Windows.Forms.TabPage tabBans;
+        private System.Windows.Forms.ListView listBans;
+        private System.Windows.Forms.ColumnHeader columnNumber;
+        private System.Windows.Forms.ColumnHeader columnGUIDIP;
+        private System.Windows.Forms.ColumnHeader columnMinutesLeft;
+        private System.Windows.Forms.ColumnHeader columnReason;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ToolStripMenuItem exAddMultipleBans;
+        private System.Windows.Forms.Button btnBanRefresh;
+        private System.Windows.Forms.ContextMenuStrip bannedMenu;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+        private System.Windows.Forms.ToolStripMenuItem copyGUIDIPToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem unbanToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
+        private System.Windows.Forms.ToolStripMenuItem removeAllExpiredBansToolStripMenuItem;
     }
 }

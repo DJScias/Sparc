@@ -21,6 +21,7 @@ namespace Sparc
         private bool isConnected;
 
         private LinkedList<Player> PlayerCache = new LinkedList<Player>();
+        private LinkedList<BannedPlayer> BanCache = new LinkedList<BannedPlayer>();
         private LinkedList<XmlNode> ServerCache = new LinkedList<XmlNode>();
 
         private Sort plSorter;
@@ -81,7 +82,8 @@ namespace Sparc
             btnConnect.Text = "Disconnect";
             this.Parent.Text = txHost.Text;
             btnExecute.Enabled = true;
-            btnRefresh.Enabled = true;
+            btnPlayerRefresh.Enabled = true;
+            btnBanRefresh.Enabled = true;
             txSay.Enabled = true;
 
             getPlayerList();
@@ -90,10 +92,12 @@ namespace Sparc
         private void handleDisconnect()
         {
             clearPlayerList();
+            clearBanList();
             isConnected = false;
             btnConnect.Text = "Connect";
             btnExecute.Enabled = false;
-            btnRefresh.Enabled = false;
+            btnPlayerRefresh.Enabled = false;
+            btnBanRefresh.Enabled = false;
             txSay.Enabled = false;
         }
         #endregion
@@ -110,7 +114,7 @@ namespace Sparc
             if (args.ConnectionResult == BattlEyeConnectionResult.InvalidLogin) { this.Invoke((MethodInvoker)delegate() { appendChat("\nInvalid login details\n", Color.Black); }); }
             if (args.ConnectionResult == BattlEyeConnectionResult.ConnectionFailed) { this.Invoke((MethodInvoker)delegate() { appendChat("\nConnection failed\n", Color.Black); }); }
 
-            if(connected)
+            if (connected)
                 this.Invoke((MethodInvoker)delegate() { handleConnect(); });
             else
                 this.Invoke((MethodInvoker)delegate() { handleDisconnect(); });
@@ -132,6 +136,10 @@ namespace Sparc
             {
                 parsePlayerList(args.Message);
             }
+            else if (args.Message.Contains("[#] [GUID] [Minutes left] [Reason]") || args.Message.Contains("[#] [IP Address] [Minutes left] [Reason]"))
+            {
+                parseBanList(args.Message);
+            }
             else
             {
                 if (IsHandleCreated)
@@ -141,7 +149,6 @@ namespace Sparc
                     else
                         this.formatChat(args.Message);
                 }
-                
             }
         }
 
@@ -162,7 +169,7 @@ namespace Sparc
 
             loginCredentials.Password = txPasswd.Text;
 
-            txAll.AppendText(txHost.Text+" ("+Dns.GetHostAddresses(txHost.Text)[0] + ")\n");
+            txAll.AppendText(txHost.Text + " (" + Dns.GetHostAddresses(txHost.Text)[0] + ")\n");
 
             return loginCredentials;
         }
@@ -259,9 +266,9 @@ namespace Sparc
         #endregion
 
         /*
-         * Player list handlers
+         * Lists handlers
          */
-        #region PLIST_HANDLE
+        #region LIST_HANDLE
 
         private void parsePlayerList(string list)
         {
@@ -319,10 +326,72 @@ namespace Sparc
             return p;
         }
 
+        private void parseBanList(string list)
+        {
+            string[] lines = list.Split(new string[] { "\n", "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string line in lines)
+            {
+                BannedPlayer p = parseBan(line);
+
+                if (p != null)
+                    BanCache.AddLast(p);
+            }
+
+            updateBanList();
+        }
+
+        private BannedPlayer parseBan(string line)
+        {
+            BannedPlayer p = null;
+
+            string[] data = System.Text.RegularExpressions.Regex.Replace(line, @"\s+", " ").Split(null, 4);
+            int x;
+
+            if (data.Length >= 4 && int.TryParse(data[0], out x))
+            {
+                /*
+                 * data[0] = bannedPlayer Number
+                 * data[1] = bannedPlayer IPGUID
+                 * data[2] = bannedPlayer Minutes Left
+                 * data[3] = bannedPlayer Reason
+                 */
+                string ipguid;
+
+                try
+                {
+                    data[1] = data[1].Remove(32);
+                }
+                catch
+                {
+                    Console.WriteLine("Error parsing ban: " + data[1]);
+                }
+
+                if (data[1].ToLowerInvariant().Contains("."))
+                {
+                    ipguid = data[1].Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries)[0];
+                }
+                else
+                {
+                    ipguid = data[1];
+                }
+
+
+                p = new BannedPlayer(data[0], ipguid, data[2], data[3]);
+            }
+            return p;
+        }
+
         private void getPlayerList()
         {
             clearPlayerList();
             b.SendCommand("players");
+        }
+
+        private void getBanList()
+        {
+            clearBanList();
+            b.SendCommand("bans");
         }
 
         private void clearPlayerList()
@@ -331,16 +400,26 @@ namespace Sparc
             this.listPlayers.BeginInvoke((MethodInvoker)delegate() { this.listPlayers.Items.Clear(); });
         }
 
+        private void clearBanList()
+        {
+            BanCache.Clear();
+            this.listBans.BeginInvoke((MethodInvoker)delegate() { this.listBans.Items.Clear(); });
+        }
+
         private void updatePlayerList()
         {
             //cleanCache();
 
             foreach (Player p in PlayerCache)
-            {
                 this.listPlayers.BeginInvoke((MethodInvoker)delegate() { this.listPlayers.Items.Add(new ListViewItem(p.getPlayerInfo())); });
-            }
+        }
 
-            this.listPlayers.BeginInvoke((MethodInvoker)delegate() { listPlayers.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent); });
+        private void updateBanList()
+        {
+            //cleanCache();
+
+            foreach (BannedPlayer p in BanCache)
+                this.listBans.BeginInvoke((MethodInvoker)delegate() { this.listBans.Items.Add(new ListViewItem(p.getPlayerInfo())); });
         }
 
         /*private void cleanCache()
@@ -363,9 +442,14 @@ namespace Sparc
             return isCached;
         }*/
 
-        private void btnRefresh_Click(object sender, EventArgs e)
+        private void btnPlayerRefresh_Click(object sender, EventArgs e)
         {
             getPlayerList();
+        }
+
+        private void btnBanRefresh_Click(object sender, EventArgs e)
+        {
+            getBanList();
         }
 
         private void listPlayers_ColumnClick(object sender, ColumnClickEventArgs e)
@@ -424,15 +508,15 @@ namespace Sparc
             if (modal.ShowDialog(this) == DialogResult.OK)
             {
                 message = modal.mtxMessage.Text;
-
-                message = (message == "") ? "Admin kick" : message;
-
-                if (Properties.Settings.Default.showKickAdmin)
-                    message += " (" + Properties.Settings.Default.Username + ")";
-
-                b.SendCommand("kick " + listPlayers.SelectedItems[0].SubItems[0].Text + " " + message);
             }
             modal.Dispose();
+
+            message = (message == "") ? "Admin kick" : message;
+
+            if (Properties.Settings.Default.showKickAdmin)
+                message += " (" + Properties.Settings.Default.Username + ")";
+
+            b.SendCommand("kick " + listPlayers.SelectedItems[0].SubItems[0].Text + " " + message);
         }
 
         private void miMessage_Click(object sender, System.EventArgs e)
@@ -444,10 +528,10 @@ namespace Sparc
             if (modal.ShowDialog(this) == DialogResult.OK)
             {
                 message += modal.mtxMessage.Text;
-
-                b.SendCommand("say " + listPlayers.SelectedItems[0].SubItems[0].Text + " " + message);
             }
-            modal.Dispose();         
+            modal.Dispose();
+
+            b.SendCommand("say " + listPlayers.SelectedItems[0].SubItems[0].Text + " " + message);
         }
 
         private void miBan_Click(object sender, System.EventArgs e)
@@ -500,17 +584,58 @@ namespace Sparc
 
         private void miQuickBan_Click(object sender, System.EventArgs e)
         {
-            string message = Properties.Settings.Default.qbReason;
-            int time = Properties.Settings.Default.qbTime;
+            DialogResult dialogResult = MessageBox.Show("Are you sure?", "Quick Ban", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (dialogResult == DialogResult.Yes)
+            {
+                string message = Properties.Settings.Default.qbReason;
+                int time = Properties.Settings.Default.qbTime;
 
-            if (Properties.Settings.Default.showBanLength)
-                message += " " + time + " minutes";
+                if (Properties.Settings.Default.showBanLength)
+                    message += " " + time + " minutes";
 
-            if (Properties.Settings.Default.showBanAdmin)
-                message += " (" + Properties.Settings.Default.Username + ")";
+                if (Properties.Settings.Default.showBanAdmin)
+                    message += " (" + Properties.Settings.Default.Username + ")";
 
-            b.SendCommand("ban " + listPlayers.SelectedItems[0].SubItems[0].Text + " " + time + " " + message);
+                b.SendCommand("ban " + listPlayers.SelectedItems[0].SubItems[0].Text + " " + time + " " + message);
+            }
         }
+        #endregion
+
+        /*
+         * Banned List context menu handlers
+         */
+
+        #region BLIST_CNTX_HANDLE
+
+        private void listBans_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                if (listBans.FocusedItem.Bounds.Contains(e.Location) == true)
+                {
+                    bannedMenu.Show(Cursor.Position);
+                }
+            }
+        }
+        private void banCopyGUIDIP_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetText(listBans.SelectedItems[0].SubItems[1].Text);
+        }
+
+        private void banUnban_Click(object sender, EventArgs e)
+        {
+            DialogResult dialogResult = MessageBox.Show("Are you sure?", "Unban", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (dialogResult == DialogResult.Yes)
+                b.SendCommand("removeBan " + listBans.SelectedItems[0].SubItems[0].Text);
+
+            btnBanRefresh.PerformClick();
+        }
+
+        private void banRemoveAllExpiredBans_Click(object sender, EventArgs e)
+        {
+            b.SendCommand("writeBans");
+        }
+
         #endregion
 
         /*
@@ -529,7 +654,7 @@ namespace Sparc
 
         private void exBans_Click(object sender, System.EventArgs e)
         {
-            b.SendCommand("bans");
+            b.SendCommand("loadBans");
         }
 
         private void exEvents_Click(object sender, System.EventArgs e)
@@ -539,22 +664,30 @@ namespace Sparc
 
         private void exLock_Click(object sender, System.EventArgs e)
         {
-            MessageBox.Show("Not implemented");
+            b.SendCommand("#lock");
         }
 
         private void exUnlock_Click(object sender, System.EventArgs e)
         {
-            MessageBox.Show("Not implemented");
+            b.SendCommand("#unlock");
         }
 
         private void exRestart_Click(object sender, System.EventArgs e)
         {
-            MessageBox.Show("Not implemented");
+            DialogResult dialogResult = MessageBox.Show("Are you sure?", "Restart Server", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (dialogResult == DialogResult.Yes)
+            {
+                b.SendCommand("#restart");
+            }
         }
 
         private void exShutdown_Click(object sender, System.EventArgs e)
         {
-            MessageBox.Show("Not implemented");
+            DialogResult dialogResult = MessageBox.Show("Are you sure?", "Shutdown Server", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (dialogResult == DialogResult.Yes)
+            {
+                b.SendCommand("#shutdown");
+            }
         }
         #endregion
 
@@ -575,7 +708,7 @@ namespace Sparc
                 if (isConnected && txSay.Text != "")
                 {
                     if (cmdOption.SelectedIndex == 0)
-                        b.SendCommand("say -1 (" + Properties.Settings.Default.Username + "): "+txSay.Text);
+                        b.SendCommand("say -1 (" + Properties.Settings.Default.Username + "): " + txSay.Text);
                     else
                         b.SendCommand(txSay.Text);
 
@@ -665,7 +798,7 @@ namespace Sparc
             catch
             {
                 MessageBox.Show("You have not selected a server to load from.");
-            }           
+            }
         }
 
         private void clearServerList()
@@ -688,7 +821,7 @@ namespace Sparc
         private void listServers_MouseClick(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
-            {          
+            {
                 if (listServers.FocusedItem.Bounds.Contains(e.Location) == true)
                 {
                     deleteMenu.Show(Cursor.Position);
@@ -720,7 +853,7 @@ namespace Sparc
                 MessageBox.Show("The server could not be deleted");
             }
         }
-        #endregion        
+        #endregion
 
         private void btnSettings_Click(object sender, EventArgs e)
         {
@@ -742,6 +875,99 @@ namespace Sparc
         {
             e.Cancel = true;
             e.NewWidth = listServers.Columns[e.ColumnIndex].Width;
+        }
+
+        private void exAddMultipleBans_Click(object sender, EventArgs e)
+        {
+            string guidorip = "";
+            string time = "";
+            string message = "";
+
+            Multiple_Bans modal = new Multiple_Bans();
+
+            if (modal.ShowDialog(this) == DialogResult.OK)
+            {
+                string inputtedLines = modal.mtxBan.Text;
+                string[] lines = inputtedLines.Split(new string[] { "\n", "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (string line in lines)
+                {
+                    string[] data = System.Text.RegularExpressions.Regex.Replace(line, @"\s+", " ").Split(null, 3);
+
+                    if (data.Length >= 3)
+                    {
+                        /*
+                         * data[0] = ban GUIDORIP
+                         * data[1] = ban Time
+                         * data[2] = ban Reason
+                         */
+                        guidorip = data[0];
+
+                        if (data[1] == "-1") // if time -1 then change to 0, to stay uniform
+                            data[1] = "0";
+                        time = data[1];
+
+                        message = (data[2] == "") ? "Admin ban" : data[2];
+
+                        b.SendCommand("addBan " + guidorip + " " + time + " " + message);
+                    }
+                }
+            }
+            modal.Dispose();
+            btnBanRefresh.PerformClick();
+        }
+
+        private void listServers_DoubleClick(object sender, EventArgs e)
+        {
+            try
+            {
+                string name = listServers.SelectedItems[0].SubItems[0].Text;
+
+                foreach (XmlNode server in ServerCache)
+                {
+                    if (server.Attributes["Name"].Value == name)
+                    {
+                        txHost.Text = server["Host"].InnerText;
+                        txPort.Text = server["Port"].InnerText;
+                        txPasswd.Text = server["Password"].InnerText;
+                    }
+                }
+
+                if (isConnected)
+                {
+                    handleDisconnect();
+                    b.Disconnect();
+                }
+                btnConnect.PerformClick();
+            }
+
+            catch
+            {
+                MessageBox.Show("You have not selected a server to load from.");
+            }
+        }
+
+        private void listServers_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string name = listServers.SelectedItems[0].SubItems[0].Text;
+
+                foreach (XmlNode server in ServerCache)
+                {
+                    if (server.Attributes["Name"].Value == name)
+                    {
+                        txHost.Text = server["Host"].InnerText;
+                        txPort.Text = server["Port"].InnerText;
+                        txPasswd.Text = server["Password"].InnerText;
+                    }
+                }
+            }
+
+            catch
+            {
+                MessageBox.Show("You have not selected a server to load from.");
+            }
         }
     }
 }

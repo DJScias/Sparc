@@ -194,19 +194,31 @@ namespace Sparc
         {
             if (text.Contains("(Direct)"))
             {
-                appendChat("\n" + DateTime.Now.ToString("[dd MMM, yyyy | HH:mm:ss] ") + text, Color.DodgerBlue);
+                if (stringContains(text, "admin") || stringContains(text, Properties.Settings.Default.Username))
+                    appendBoldChat("\n" + DateTime.Now.ToString("[dd MMM, yyyy | HH:mm:ss] ") + text, Color.DodgerBlue);
+                else
+                    appendChat("\n" + DateTime.Now.ToString("[dd MMM, yyyy | HH:mm:ss] ") + text, Color.DodgerBlue);
             }
             else if (text.Contains("(Unknown)"))
             {
-                appendChat("\n" + DateTime.Now.ToString("[dd MMM, yyyy | HH:mm:ss] ") + text, Color.MediumPurple);
+                if (stringContains(text, "admin") || stringContains(text, Properties.Settings.Default.Username))
+                    appendBoldChat("\n" + DateTime.Now.ToString("[dd MMM, yyyy | HH:mm:ss] ") + text, Color.MediumPurple);
+                else
+                    appendChat("\n" + DateTime.Now.ToString("[dd MMM, yyyy | HH:mm:ss] ") + text, Color.MediumPurple);
             }
             else if (text.Contains("(Group)"))
             {
-                appendChat("\n" + DateTime.Now.ToString("[dd MMM, yyyy | HH:mm:ss] ") + text, Color.ForestGreen);
+                if (stringContains(text, "admin") || stringContains(text, Properties.Settings.Default.Username))
+                    appendBoldChat("\n" + DateTime.Now.ToString("[dd MMM, yyyy | HH:mm:ss] ") + text, Color.ForestGreen);
+                else
+                    appendChat("\n" + DateTime.Now.ToString("[dd MMM, yyyy | HH:mm:ss] ") + text, Color.ForestGreen);
             }
             else if (text.Contains("(Vehicle)"))
             {
-                appendChat("\n" + DateTime.Now.ToString("[dd MMM, yyyy | HH:mm:ss] ") + text, Color.DarkOrange);
+                if (stringContains(text, "admin") || stringContains(text, Properties.Settings.Default.Username))
+                    appendBoldChat("\n" + DateTime.Now.ToString("[dd MMM, yyyy | HH:mm:ss] ") + text, Color.DarkOrange);
+                else
+                    appendChat("\n" + DateTime.Now.ToString("[dd MMM, yyyy | HH:mm:ss] ") + text, Color.DarkOrange);
             }
             else
             {
@@ -239,6 +251,19 @@ namespace Sparc
             txAll.AppendText(text);
             txChat.AppendText(text);
         }
+
+        private void appendBoldChat(string text, Color color)
+        {
+            chatAlert(text);
+
+            txAll.SelectionColor = color;
+            txChat.SelectionColor = color;
+            txAll.SelectionFont = new Font("Lucida Console", 8, FontStyle.Bold);
+            txChat.SelectionFont = new Font("Lucida Console", 8, FontStyle.Bold);
+            txAll.AppendText(text);
+            txChat.AppendText(text);
+        }
+        
         #endregion
 
         /*

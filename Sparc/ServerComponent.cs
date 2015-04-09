@@ -22,9 +22,11 @@ namespace Sparc
 
         private LinkedList<Player> PlayerCache = new LinkedList<Player>();
         private LinkedList<BannedPlayer> BanCache = new LinkedList<BannedPlayer>();
+        private LinkedList<Admin> AdminCache = new LinkedList<Admin>();
         private LinkedList<XmlNode> ServerCache = new LinkedList<XmlNode>();
 
         private Sort plSorter;
+        private Sort slSorter;
 
         public ServerComponent()
         {
@@ -36,7 +38,10 @@ namespace Sparc
             cmdOption.SelectedIndex = 0;
 
             plSorter = new Sort();
+            slSorter = new Sort();
             this.listPlayers.ListViewItemSorter = plSorter;
+            this.listServers.ListViewItemSorter = slSorter;
+            searchBox.SelectedIndex = 0;
 
             loadServerList();
         }
@@ -93,6 +98,7 @@ namespace Sparc
         {
             clearPlayerList();
             clearBanList();
+            clearAdminList();
             isConnected = false;
             btnConnect.Text = "Connect";
             btnExecute.Enabled = false;
@@ -139,6 +145,10 @@ namespace Sparc
             else if (args.Message.Contains("[#] [GUID] [Minutes left] [Reason]") || args.Message.Contains("[#] [IP Address] [Minutes left] [Reason]"))
             {
                 parseBanList(args.Message);
+            }
+            else if (args.Message.Contains("[#] [IP Address]:[Port]"))
+            {
+                parseAdminList(args.Message);
             }
             else
             {
@@ -382,10 +392,48 @@ namespace Sparc
             return p;
         }
 
+        private void parseAdminList(string list)
+        {
+            string[] lines = list.Split(new string[] { "\n", "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string line in lines)
+            {
+                Admin p = parseAdmin(line);
+
+                if (p != null)
+                    AdminCache.AddLast(p);
+            }
+
+            updateAdminList();
+        }
+
+        private Admin parseAdmin(string line)
+        {
+            Admin p = null;
+
+            string[] data = System.Text.RegularExpressions.Regex.Replace(line, @"\s+", " ").Split(null, 2);
+            int x;
+
+            if (data.Length >= 2 && int.TryParse(data[0], out x))
+            {
+                /*
+                 * data[0] = Admin Number
+                 * data[1] = Admin IP
+                 */
+
+                string ip = data[1].Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries)[0];
+
+                p = new Admin(data[0], ip);
+            }
+            return p;
+        }
+
         private void getPlayerList()
         {
             clearPlayerList();
+            clearAdminList();
             b.SendCommand("players");
+            b.SendCommand("admins");
         }
 
         private void getBanList()
@@ -406,6 +454,12 @@ namespace Sparc
             this.listBans.BeginInvoke((MethodInvoker)delegate() { this.listBans.Items.Clear(); });
         }
 
+        private void clearAdminList()
+        {
+            AdminCache.Clear();
+            this.listAdmins.BeginInvoke((MethodInvoker)delegate() { this.listAdmins.Items.Clear(); });
+        }
+
         private void updatePlayerList()
         {
             //cleanCache();
@@ -420,6 +474,14 @@ namespace Sparc
 
             foreach (BannedPlayer p in BanCache)
                 this.listBans.BeginInvoke((MethodInvoker)delegate() { this.listBans.Items.Add(new ListViewItem(p.getPlayerInfo())); });
+        }
+
+        private void updateAdminList()
+        {
+            //cleanCache();
+
+            foreach (Admin p in AdminCache)
+                this.listAdmins.BeginInvoke((MethodInvoker)delegate() { this.listAdmins.Items.Add(new ListViewItem(p.getPlayerInfo())); });
         }
 
         /*private void cleanCache()
@@ -445,11 +507,16 @@ namespace Sparc
         private void btnPlayerRefresh_Click(object sender, EventArgs e)
         {
             getPlayerList();
+
+            playerCount.Text = listPlayers.Items.Count.ToString();
+            adminCount.Text = listAdmins.Items.Count.ToString();
         }
 
         private void btnBanRefresh_Click(object sender, EventArgs e)
         {
             getBanList();
+
+            banCount.Text = listBans.Items.Count.ToString();
         }
 
         private void listPlayers_ColumnClick(object sender, ColumnClickEventArgs e)
@@ -466,6 +533,22 @@ namespace Sparc
 
             this.listPlayers.Sort();
         }
+
+        private void listServers_ColumnClick(object sender, ColumnClickEventArgs e)
+        {
+            if (e.Column == slSorter.SortColumn)
+            {
+                slSorter.Order = (slSorter.Order == SortOrder.Ascending) ? slSorter.Order = SortOrder.Descending : slSorter.Order = SortOrder.Ascending;
+            }
+            else
+            {
+                slSorter.SortColumn = e.Column;
+                slSorter.Order = SortOrder.Ascending;
+            }
+
+            this.listServers.Sort();
+        }
+
         #endregion
 
         /*
@@ -967,6 +1050,99 @@ namespace Sparc
             catch
             {
                 MessageBox.Show("You have not selected a server to load from.");
+            }
+        }
+
+        private void txSay_TextChanged(object sender, EventArgs e)
+        {
+            charCount.Text = txSay.TextLength.ToString() + "/400";
+        }
+
+        private void tabPlayer_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            switch (tabPlayer.SelectedIndex)
+            {
+                case 0:
+                    {
+                        searchBox.Items.Clear();
+                        searchBox.Items.AddRange(new object[] {
+                        "Name",
+                        "GUID",
+                        "IP"});
+                        searchBox.SelectedIndex = 0;
+                    }
+                    break;
+                case 1:
+                    {
+                        searchBox.Items.Clear();
+                        searchBox.Items.AddRange(new object[] {
+                        "GUID/IP",
+                        "Reason"});
+                        searchBox.SelectedIndex = 0;
+                    }
+                    break;
+            }
+        }
+
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            if (searchTextBox.Text != "")
+            {
+                switch (btnSearch.Text)
+                {
+                    case "Search":
+                        {
+                            switch (searchBox.SelectedItem.ToString().Trim())
+                            {
+                                case "Name": // pList
+                                    {
+                                        foreach (ListViewItem item in listPlayers.Items)
+                                        {
+                                            //Selected = true, won't show until the listview has focus, but setting it to true puts it in the 
+                                            //SelectedItems collection.
+                                            if (item.SubItems[1].Text.ToLower().StartsWith(searchTextBox.Text.ToLower()))
+                                            {
+                                            }
+                                            else
+                                            {
+                                                listPlayers.Items.Remove(item);
+                                            }
+
+                                        }
+                                    }
+                                    break;
+                                case "GUID": // pList
+                                    {
+
+                                    }
+                                    break;
+                                case "IP": // pList
+                                    {
+
+                                    }
+                                    break;
+                                case "GUID/IP": // bList
+                                    {
+
+                                    }
+                                    break;
+                                case "Reason": // bList
+                                    {
+
+                                    }
+                                    break;
+                            }
+                            btnSearch.Text = "Clear";
+                        }
+                        break;
+                    case "Clear":
+                        {
+                            updatePlayerList();
+                            searchTextBox.Clear();
+                            btnSearch.Text = "Search";
+                        }
+                        break;
+                }
             }
         }
     }
